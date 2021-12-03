@@ -9,23 +9,21 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/richardbischof/vt-microfrontend.git"
+    "url": "git+https://github.com/Basisvisualisierung/vt-microfrontend.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/richardbischof/vt-microfrontend/issues"
+    "url": "https://github.com/Basisvisualisierung/vt-microfrontend/issues"
   },
-  "homepage": "https://github.com/richardbischof/vt-microfrontend#readme",
+  "homepage": "https://github.com/Basisvisualisierung/vt-microfrontend#readme",
   "dependencies": {
-    "browserify": "^17.0.0",
-    "maplibre-gl": "^1.15.2",
-    "uglify-js": "^3.14.4"
+    "maplibre-gl": "^1.15.2"
   },
   "devDependencies": {
+    "browserify": "^17.0.0",
     "browserify-css": "^0.15.0",
-    "concat": "^1.0.3",
-    "fs-extra": "^10.0.0"
+    "uglify-js": "^3.14.4"
   },
   "browserify-css": {
     "minify": true,
