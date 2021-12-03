@@ -109,12 +109,14 @@ A more complete example:
 ```
 
 ## Build
-Dependencies: [`browserify`](https://browserify.org) (npm install -g browserify) and [`uglify-js`](https://github.com/mishoo/UglifyJS) (npm install -g uglify-js).
-
-After installing the dependencies, run the following commands inside the project folder to build it:
+Install Dependencies: 
 ```
-chmod u+x build.sh
-./build.sh
+npm install
+```
+
+And build the project:
+```
+npm run build
 ```
 This will combine the code of `app.js` with all required css and javascript files: `vt-microfrontend.min.js` will be created in the dist folder.
 
