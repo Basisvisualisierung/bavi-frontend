@@ -1,5 +1,4 @@
-const css = require('maplibre-gl/dist/maplibre-gl.css');
-
+const css = require("maplibre-gl/dist/maplibre-gl.css")
 const maplibregl = require("maplibre-gl/dist/maplibre-gl")
 
 class VTMap extends HTMLElement {
@@ -22,7 +21,7 @@ class VTMap extends HTMLElement {
             "map-width",
             "map-style",
             "map-click",
-        ];
+        ]
     }
 
     connectedCallback() {
@@ -41,7 +40,7 @@ class VTMap extends HTMLElement {
         let shadow = this.attachShadow({ mode: "open" })
         const style = document.createElement("style")
         this.container = document.createElement("div")
-        style.innerText = css // css variable will be injected during build process
+        style.innerText = css
         this.container.id = "map-container" + performance.now()
         this.container.style.height = this.getAttribute("map-height")
         this.container.style.width = this.getAttribute("map-width")
@@ -62,20 +61,20 @@ class VTMap extends HTMLElement {
         
         // Set listener to provided functions
         this.mapClickFunction = this.getAttribute("map-click")
-        this.map.on('click', this.mapClickBinding)
+        this.map.on("click", this.mapClickBinding)
 
         // Register listeners to update values in the html component
-        this.map.on('zoom', () => {
+        this.map.on("zoom", () => {
             this.isZooming = true
             this.setAttribute("zoom",this.map.getZoom())
             this.isZooming = false
         })
-        this.map.on('drag', () => {
+        this.map.on("drag", () => {
             this.isDraging = true
             this.setAttribute("lon",this.map.getCenter().lng)
             this.setAttribute("lat",this.map.getCenter().lat)
             this.isDraging = false
-        });
+        })
 
         // Display map correctly on load
         this.map.once("render", () => {
@@ -106,8 +105,8 @@ class VTMap extends HTMLElement {
                 break
             case "map-click":
                 this.mapClickFunction = newVal
-                this.map.off('click', this.mapClickBinding)
-                this.map.on('click', this.mapClickBinding)
+                this.map.off("click", this.mapClickBinding)
+                this.map.on("click", this.mapClickBinding)
                 break
         }
     }
@@ -133,7 +132,7 @@ class VTMarker extends HTMLElement {
         return [
             "lon",
             "lat",
-        ];
+        ]
     }
 
     connectedCallback() {
@@ -175,7 +174,7 @@ class VTPopup extends HTMLElement {
         return [
             "title",
             "text",
-        ];
+        ]
     }
 
     connectedCallback() {
@@ -206,7 +205,7 @@ class VTControl extends HTMLElement {
         return [
             "type",
             "position",
-        ];
+        ]
     }
 
     connectedCallback() {
@@ -257,7 +256,7 @@ class VTSource extends HTMLElement {
         return [
             "type",
             "src"
-        ];
+        ]
     }
 
     connectedCallback() {
@@ -308,7 +307,7 @@ class VTLayer extends HTMLElement {
             "opacity",
             "line-width",
             "circle-radius"
-        ];
+        ]
     }
 
     connectedCallback() {
@@ -333,10 +332,10 @@ class VTLayer extends HTMLElement {
             case "minzoom":
             case "maxzoom":
                 this.map.setLayerZoomRange(this.layer.id, parseInt(this.getAttribute("minzoom")), parseInt(this.getAttribute("maxzoom")))
-                break;
+                break
             case "color":
                 this.map.setPaintProperty(this.layer.id, this.layer.type + "-color", newVal )
-                break;
+                break
             case "opacity":
                 this.map.setPaintProperty(this.layer.id, this.layer.type + "-opacity", parseFloat(newVal))
                 break

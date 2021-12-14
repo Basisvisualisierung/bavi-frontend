@@ -118,7 +118,7 @@ And build the project:
 ```
 npm run build
 ```
-This will combine the code of `app.js` with all required css and javascript files: `vt-microfrontend.min.js` will be created in the dist folder.
+This will combine the code of `app.js` with all required css and javascript files: `vt-microfrontend.js` and `vt-microfrontend.min.js` will be created in the dist folder.
 
 
 ## License
