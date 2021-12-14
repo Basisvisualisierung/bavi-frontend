@@ -1,4 +1,6 @@
-const maplibregl = require("../libs/maplibre/maplibre-gl.js")
+const css = require('maplibre-gl/dist/maplibre-gl.css');
+
+const maplibregl = require("maplibre-gl/dist/maplibre-gl")
 
 class VTMap extends HTMLElement {
 
