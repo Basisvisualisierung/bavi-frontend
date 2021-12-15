@@ -58,7 +58,7 @@ class VTMap extends HTMLElement {
 
         // Set part attribute to enable css styling from the host
         this.map.getCanvas().setAttribute("part", "mapcanvas")
-        
+
         // Set listener to provided functions
         this.mapClickFunction = this.getAttribute("map-click")
         this.map.on("click", this.mapClickBinding)
@@ -66,19 +66,19 @@ class VTMap extends HTMLElement {
         // Register listeners to update values in the html component
         this.map.on("zoom", () => {
             this.isZooming = true
-            this.setAttribute("zoom",this.map.getZoom())
+            this.setAttribute("zoom", this.map.getZoom())
             this.isZooming = false
         })
         this.map.on("drag", () => {
             this.isDraging = true
-            this.setAttribute("lon",this.map.getCenter().lng)
-            this.setAttribute("lat",this.map.getCenter().lat)
+            this.setAttribute("lon", this.map.getCenter().lng)
+            this.setAttribute("lat", this.map.getCenter().lat)
             this.isDraging = false
         })
 
         // Display map correctly on load
         this.map.once("render", () => {
-            this.map.resize()            
+            this.map.resize()
         })
     }
 
@@ -153,13 +153,13 @@ class VTMarker extends HTMLElement {
             }
         } else {
             this.addMarker()
-        } 
+        }
     }
 
     addMarker() {
         const lon = this.getAttribute("lon")
         const lat = this.getAttribute("lat")
-        if(lon && lat && this.map) {
+        if (lon && lat && this.map) {
             this.marker = new maplibregl.Marker().setLngLat([lon, lat]).addTo(this.map)
         }
     }
@@ -282,7 +282,7 @@ class VTSource extends HTMLElement {
 
     disconnectedCallback() {
         let layers = this.getElementsByTagName("vt-layer")
-        for(let i=0; i<layers.length; i++) {
+        for (let i = 0; i < layers.length; i++) {
             this.map.getLayer(layers.item(i).id) && this.map.removeLayer(layers.item(i).id)
         }
         this.map.removeSource(this.sourceName)
@@ -313,7 +313,7 @@ class VTLayer extends HTMLElement {
     connectedCallback() {
         this.map = this.parentElement.map
         this.sourceName = this.parentElement.sourceName
-        this.addLayer(true)   
+        this.addLayer(true)
     }
 
     disconnectedCallback() {
@@ -322,7 +322,7 @@ class VTLayer extends HTMLElement {
 
     attributeChangedCallback(attrName, oldVal, newVal) {
         if (!this.map || !this.layer) return
-        switch(attrName) {
+        switch (attrName) {
             case "id":
             case "type":
                 let original = this.map.getLayer(this.layer.id)
@@ -334,7 +334,7 @@ class VTLayer extends HTMLElement {
                 this.map.setLayerZoomRange(this.layer.id, parseInt(this.getAttribute("minzoom")), parseInt(this.getAttribute("maxzoom")))
                 break
             case "color":
-                this.map.setPaintProperty(this.layer.id, this.layer.type + "-color", newVal )
+                this.map.setPaintProperty(this.layer.id, this.layer.type + "-color", newVal)
                 break
             case "opacity":
                 this.map.setPaintProperty(this.layer.id, this.layer.type + "-opacity", parseFloat(newVal))
@@ -360,10 +360,10 @@ class VTLayer extends HTMLElement {
         if (!this.map || !this.sourceName || !id || !VTLayer.types.includes(type)) return
         let layer = {
             "id": id,
-            "type": type === "text" ? "symbol": type,
+            "type": type === "text" ? "symbol" : type,
             "source": this.sourceName,
         }
-        switch(type) {
+        switch (type) {
             case "line":
                 layer["paint"] = {
                     "line-color": color,
@@ -385,7 +385,7 @@ class VTLayer extends HTMLElement {
                 }
                 break
         }
-        if(this.parentElement.type !== "geojson") {
+        if (this.parentElement.type !== "geojson") {
             layer["source-layer"] = id
         }
         if (parseInt(minzoom)) {
@@ -403,7 +403,7 @@ class VTLayer extends HTMLElement {
             this.map.addLayer(layer)
             this.layer = this.map.getLayer(layer.id)
         }
-        
+
     }
 }
 
