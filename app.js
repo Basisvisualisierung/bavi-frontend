@@ -112,7 +112,7 @@ class VTMap extends HTMLElement {
     }
 
     getStyle(style) {
-        return VTMap.styles.includes(style) ? "https://basisvisualisierung.niedersachsen.de/services/basiskarte_ni/styles/vt-style-" + style + ".json" : style
+        return VTMap.styles.includes(style) ? "https://basisvisualisierung.niedersachsen.de/services/basiskarte/styles/vt-style-" + style + ".json" : style
     }
 
     evalClick(event) {
