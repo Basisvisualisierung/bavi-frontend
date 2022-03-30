@@ -32,10 +32,11 @@ Describes a map control element e.g. a scale or zoom controls. Has to be inside 
 
 #### vt-marker
 Describes a location with marker on the map. Has to be inside a vt-map.
-| Name | Required | Type   | Default | Reactive | Description |
-|------|----------|--------|---------|----------|-------------|
-| lon  | yes      | number |         | yes      | marker position |
-| lat  | yes      | number |         | yes      | marker position |
+| Name   | Required | Type   | Default | Reactive | Description |
+|--------|----------|--------|---------|----------|-------------|
+| lon    | yes      | number |         | yes      | marker position |
+| lat    | yes      | number |         | yes      | marker position |
+| color  | no       | string | #c4153a | yes      | marker color |
 
 #### vt-popup
 Define a popup for a vt-marker. Has to be inside a vt-marker.

@@ -132,11 +132,13 @@ class VTMarker extends HTMLElement {
         return [
             "lon",
             "lat",
+            "color"
         ]
     }
 
     connectedCallback() {
         this.map = this.parentElement.map
+        !this.hasAttribute("color") && this.setAttribute("color", "#c4153a")
         this.addMarker()
     }
 
@@ -146,10 +148,14 @@ class VTMarker extends HTMLElement {
 
     attributeChangedCallback(attrName, oldVal, newVal) {
         if (this.marker) {
-            const lon = this.getAttribute("lon")
-            const lat = this.getAttribute("lat")
-            if (lon && lat) {
-                this.marker.setLngLat([lon, lat])
+            if(attrName === "color") {
+                this.addMarker()
+            } else {
+                const lon = this.getAttribute("lon")
+                const lat = this.getAttribute("lat")
+                if (lon && lat) {
+                    this.marker.setLngLat([lon, lat])
+                }
             }
         } else {
             this.addMarker()
@@ -157,10 +163,12 @@ class VTMarker extends HTMLElement {
     }
 
     addMarker() {
+        this.marker && this.marker.remove()
         const lon = this.getAttribute("lon")
         const lat = this.getAttribute("lat")
+        const color = this.getAttribute("color")
         if (lon && lat && this.map) {
-            this.marker = new maplibregl.Marker().setLngLat([lon, lat]).addTo(this.map)
+            this.marker = new maplibregl.Marker({ color: color }).setLngLat([lon, lat]).addTo(this.map)
         }
     }
 }
