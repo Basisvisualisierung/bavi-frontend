@@ -1,6 +1,6 @@
 {
   "name": "vt-microfrontend",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "An interactive vector tiles map as webcomponent. It's based on the [vector tiles services of Basisvisualisierung](https://basisvisualisierung.niedersachsen.de) and its [stylings](https://github.com/Basisvisualisierung/vt-styles/tree/basiskarte_ni).",
   "main": "index.js",
   "scripts": {
