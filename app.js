@@ -258,7 +258,7 @@ class VTSource extends HTMLElement {
     sourceName
     type
 
-    static types = ["vector", "geojson"]
+    static types = ["vector", "geojson", "raster"]
 
     static get observedAttributes() {
         return [
@@ -277,6 +277,7 @@ class VTSource extends HTMLElement {
         let source = {}
         switch (this.type) {
             case "vector":
+            case "raster":
                 source = { "type": this.type, "tiles": [src] }
                 break
             case "geojson":
@@ -303,7 +304,7 @@ class VTLayer extends HTMLElement {
     sourceName
     layer
 
-    static types = ["line", "fill", "circle"]
+    static types = ["line", "fill", "circle", "raster"]
 
     static get observedAttributes() {
         return [
@@ -314,7 +315,8 @@ class VTLayer extends HTMLElement {
             "color",
             "opacity",
             "line-width",
-            "circle-radius"
+            "circle-radius",
+            "background"
         ]
     }
 
@@ -332,6 +334,7 @@ class VTLayer extends HTMLElement {
         if (!this.map || !this.layer) return
         switch (attrName) {
             case "id":
+            case "background":
             case "type":
                 let original = this.map.getLayer(this.layer.id)
                 this.map.removeLayer(original.id)
@@ -359,6 +362,7 @@ class VTLayer extends HTMLElement {
     addLayer(initial) {
         const id = this.getAttribute("id")
         const type = this.getAttribute("type")
+        const background = this.getAttribute("background") ? this.getAttribute("background") : "false"
         const minzoom = this.getAttribute("minzoom")
         const maxzoom = this.getAttribute("maxzoom")
         const color = this.getAttribute("color") ? this.getAttribute("color") : "#000000"
@@ -368,7 +372,7 @@ class VTLayer extends HTMLElement {
         if (!this.map || !this.sourceName || !id || !VTLayer.types.includes(type)) return
         let layer = {
             "id": id,
-            "type": type === "text" ? "symbol" : type,
+            "type": type,
             "source": this.sourceName,
         }
         switch (type) {
@@ -392,8 +396,12 @@ class VTLayer extends HTMLElement {
                     "circle-opacity": opacity,
                 }
                 break
+            case "raster":
+                layer["paint"] = {
+                    "raster-opacity": opacity
+                }
         }
-        if (this.parentElement.type !== "geojson") {
+        if (this.parentElement.type === "vector") {
             layer["source-layer"] = id
         }
         if (parseInt(minzoom)) {
@@ -404,11 +412,19 @@ class VTLayer extends HTMLElement {
         }
         if (initial) {
             this.map.once("style.load", () => {
-                this.map.addLayer(layer)
+                if(background === "true") {
+                    this.map.addLayer(layer, this.map.getStyle().layers[0].id)
+                } else{
+                    this.map.addLayer(layer)
+                }
                 this.layer = this.map.getLayer(layer.id)
             })
         } else {
-            this.map.addLayer(layer)
+            if(background === "true") {
+                this.map.addLayer(layer, this.map.getStyle().layers[0].id)
+            } else {
+                this.map.addLayer(layer)
+            }
             this.layer = this.map.getLayer(layer.id)
         }
 

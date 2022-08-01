@@ -49,7 +49,7 @@ Define a popup for a vt-marker. Has to be inside a vt-marker.
 Add externel data on top of your map. Has to be inside vt-map.
 | Name | Required | Type   | Default | Reactive | Description |
 |------|----------|--------|---------|----------|-------------|
-| type | yes      | string |         | no       | vector, geojson |
+| type | yes      | string |         | no       | vector, geojson, raster |
 | src  | yes      | url    |         | no       | url to external service/data |
 
 #### vt-layer
@@ -57,13 +57,14 @@ Describe a layer of your vt-source. Has to be inside at vt-source.
 | Name          | Required | Type   | Default | Reactive | Description |
 |---------------|----------|--------|---------|----------|-------------|
 | id            | yes      | string |         | yes      | id of layer |
-| type          | yes      | string |         | yes      | line, fill, circle |
+| type          | yes      | string |         | yes      | line, fill, circle, raster |
 | minzoom       | no       | number | unset   | yes      | min. zoom level for layer to be visible |
 | maxzoom       | no       | number | unset   | yes      | max. zoom level for layer to be visible |
 | color         | no       | string | #000000 | yes      | color for layer visualization |
 | opacity       | no       | number | 1.0     | yes      | opacity level |
 | line-width    | no       | number | 1       | yes      | sets the width if type is line |
 | circle-radius | no       | number | 5       | yes      | sets the radius if type is circle |
+| background    | no       | boolean | false      | yes      | sets the position to back or front if type is raster |
 
 
 ### Examples
