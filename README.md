@@ -1,4 +1,4 @@
-# VT Microfrontend
+# Bavi Frontend
 An interactive vector tiles map as webcomponent. It's based on the [vector tiles services of Basisvisualisierung](https://basisvisualisierung.niedersachsen.de) and its [stylings](https://github.com/Basisvisualisierung/vt-styles/tree/basiskarte_ni).
 
 ## Usage
@@ -64,7 +64,7 @@ Describe a layer of your vt-source. Has to be inside at vt-source.
 | opacity       | no       | number | 1.0     | yes      | opacity level |
 | line-width    | no       | number | 1       | yes      | sets the width if type is line |
 | circle-radius | no       | number | 5       | yes      | sets the radius if type is circle |
-| background    | no       | boolean | false      | yes      | sets the position to back or front if type is raster |
+| background    | no       | boolean| false   | yes      | sets the position to back or front if type is raster |
 
 
 ### Examples

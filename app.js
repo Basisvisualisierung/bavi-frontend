@@ -1,17 +1,28 @@
 const css = require("maplibre-gl/dist/maplibre-gl.css")
 const maplibregl = require("maplibre-gl/dist/maplibre-gl")
 
+/**
+ * Displays a vector tiles map
+ */
 class VTMap extends HTMLElement {
 
+    /** The maplibre map object */
     map
+    /** The HTML container for the map */
     container
+    /** A binding used for the mapClickFunction */
     mapClickBinding
+    /** User definable callback */
     mapClickFunction
+    /** Indicates if map is changing zoomlevel */
     isZooming = false
+    /** Indicates if map is moving */
     isDraging = false
 
+    /** All available map styles */
     static styles = ["classic", "color", "grayscale", "light", "night"]
 
+    /** All available attributes */
     static get observedAttributes() {
         return [
             "lon",
@@ -24,6 +35,9 @@ class VTMap extends HTMLElement {
         ]
     }
 
+    /**
+     * Initial setup of the map after element is attached to the DOM
+     */
     connectedCallback() {
         // Create a function binding to this for map-click-listener
         this.mapClickBinding = this.evalClick.bind(this)
@@ -37,7 +51,7 @@ class VTMap extends HTMLElement {
         !this.hasAttribute("map-style") && this.setAttribute("map-style", "classic")
 
         // Add container and stylesheet
-        let shadow = this.attachShadow({ mode: "open" })
+        const shadow = this.attachShadow({ mode: "open" })
         const style = document.createElement("style")
         this.container = document.createElement("div")
         style.innerText = css
@@ -59,29 +73,33 @@ class VTMap extends HTMLElement {
         // Set part attribute to enable css styling from the host
         this.map.getCanvas().setAttribute("part", "mapcanvas")
 
-        // Set listener to provided functions
+        // Set listener to provided function
         this.mapClickFunction = this.getAttribute("map-click")
         this.map.on("click", this.mapClickBinding)
 
-        // Register listeners to update values in the html component
+        // Register listeners to update values in the HTML component
         this.map.on("zoom", () => {
             this.isZooming = true
-            this.setAttribute("zoom", this.map.getZoom())
+            this.setAttribute("zoom", this.map.getZoom().toFixed(2))
             this.isZooming = false
         })
         this.map.on("drag", () => {
             this.isDraging = true
-            this.setAttribute("lon", this.map.getCenter().lng)
-            this.setAttribute("lat", this.map.getCenter().lat)
+            this.setAttribute("lon", this.map.getCenter().lng.toFixed(2))
+            this.setAttribute("lat", this.map.getCenter().lat.toFixed(2))
             this.isDraging = false
         })
 
         // Display map correctly on load
-        this.map.once("render", () => {
-            this.map.resize()
-        })
+        this.map.once("render", () => { this.map.resize() })
     }
 
+    /**
+     * Changes state of the map if attributes are changed
+     * @param {string} attrName Name of the attribute 
+     * @param {string} oldVal Old value of the attribute
+     * @param {string} newVal New value of the attribute
+     */
     attributeChangedCallback(attrName, oldVal, newVal) {
         if (!this.map || !this.container) return
         switch (attrName) {
@@ -111,10 +129,19 @@ class VTMap extends HTMLElement {
         }
     }
 
+    /**
+     * Gets URL for a style 
+     * @param {string} style Either one of the defined style names or an URL to an external style
+     * @returns Full URL to a style
+     */
     getStyle(style) {
         return VTMap.styles.includes(style) ? "https://basisvisualisierung.niedersachsen.de/services/basiskarte/styles/vt-style-" + style + ".json" : style
     }
 
+    /**
+     * Calls the user provided callback for a click on the map
+     * @param {MapMouseEvent} event Maplibre click event 
+     */
     evalClick(event) {
         (this.mapClickFunction in window) && eval(this.mapClickFunction)({
             lon: event.lngLat.lng,
@@ -123,11 +150,17 @@ class VTMap extends HTMLElement {
     }
 }
 
+/**
+ * Displays a marker element on a map
+ */
 class VTMarker extends HTMLElement {
 
+    /** The map object from the VTMap parent */
     map
+    /** The maplibre marker object */
     marker
 
+    /** All available attributes */
     static get observedAttributes() {
         return [
             "lon",
@@ -136,48 +169,65 @@ class VTMarker extends HTMLElement {
         ]
     }
 
+    /**
+     * Initial setup of the marker after element is attached to the DOM
+     */
     connectedCallback() {
         this.map = this.parentElement.map
         !this.hasAttribute("color") && this.setAttribute("color", "#c4153a")
         this.addMarker()
     }
 
+    /**
+     * Removes the marker from the map if element is removed from the DOM
+     */
     disconnectedCallback() {
         this.marker && this.marker.remove()
     }
 
+    /**
+     * Changes the position and color of the marker if attribute is changed
+     * @param {string} attrName Name of the attribute 
+     * @param {string} oldVal Old value of the attribute
+     * @param {string} newVal New value of the attribute
+     */
     attributeChangedCallback(attrName, oldVal, newVal) {
-        if (this.marker) {
-            if(attrName === "color") {
-                this.addMarker()
-            } else {
-                const lon = this.getAttribute("lon")
-                const lat = this.getAttribute("lat")
-                if (lon && lat) {
-                    this.marker.setLngLat([lon, lat])
-                }
+        if (this.marker && attrName !== "color") {
+            const lon = this.getAttribute("lon")
+            const lat = this.getAttribute("lat")
+            if (lon && lat) {
+                this.marker.setLngLat([lon, lat])
             }
         } else {
             this.addMarker()
         }
     }
 
+    /**
+     * Helper method to add marker with attributes
+     */
     addMarker() {
         this.marker && this.marker.remove()
         const lon = this.getAttribute("lon")
         const lat = this.getAttribute("lat")
         const color = this.getAttribute("color")
-        if (lon && lat && this.map) {
+        if (lon && lat && color && this.map) {
             this.marker = new maplibregl.Marker({ color: color }).setLngLat([lon, lat]).addTo(this.map)
         }
     }
 }
 
+/**
+ * Creates a popup element for a marker
+ */
 class VTPopup extends HTMLElement {
 
+    /** The marker object from the VTMarker parent */
     marker
+    /** The maplibre popup object */
     popup
 
+    /** All available attributes */
     static get observedAttributes() {
         return [
             "title",
@@ -185,6 +235,9 @@ class VTPopup extends HTMLElement {
         ]
     }
 
+    /**
+     * Initial setup of the popup after element is attached to the DOM
+     */
     connectedCallback() {
         this.marker = this.parentElement.marker
         if (!this.marker) return
@@ -192,23 +245,40 @@ class VTPopup extends HTMLElement {
         this.marker.setPopup(this.popup)
     }
 
+    /**
+     * Removes the popup from the marker if element is removed from the DOM
+     */
     disconnectedCallback() {
         this.popup && this.popup.remove()
     }
 
+    /**
+     * Updates the title and text of the popup if attribute is changed
+     * @param {string} attrName Name of the attribute 
+     * @param {string} oldVal Old value of the attribute
+     * @param {string} newVal New value of the attribute
+     */
     attributeChangedCallback(attrName, oldVal, newVal) {
         this.popup && this.popup.setHTML("<b>" + this.getAttribute("title") + "</b><br><p>" + this.getAttribute("text") + "</p>")
     }
 }
 
+/**
+ * Displays a control element on a map
+ */
 class VTControl extends HTMLElement {
 
+    /** The map object from the VTMap parent */
     map
+    /** The maplibre control object */
     control
 
+    /** All available control positions */
     static positions = ["top-left", "top-right", "bottom-left", "bottom-right"]
+    /** All available control types */
     static types = ["fullscreen", "geolocate", "navigation", "scale"]
 
+    /** All available attributes */
     static get observedAttributes() {
         return [
             "type",
@@ -216,20 +286,35 @@ class VTControl extends HTMLElement {
         ]
     }
 
+    /**
+     * Initial setup of the control after element is attached to the DOM
+     */
     connectedCallback() {
         this.map = this.parentElement.map
         this.addControl()
     }
 
+    /**
+     * Removes the control from the map if element is removed from the DOM
+     */
     disconnectedCallback() {
         this.control && this.map && this.map.hasControl(this.control) && this.map.removeControl(this.control)
     }
 
+    /**
+     * Updates the type and position of the control if attribute is changed
+     * @param {string} attrName Name of the attribute 
+     * @param {string} oldVal Old value of the attribute
+     * @param {string} newVal New value of the attribute
+     */
     attributeChangedCallback(attrName, oldVal, newVal) {
         this.disconnectedCallback()
         this.addControl()
     }
 
+    /**
+     * Helper method to add control with attributes
+     */
     addControl() {
         const position = this.getAttribute("position")
         const type = this.getAttribute("type")
@@ -252,14 +337,20 @@ class VTControl extends HTMLElement {
     }
 }
 
+/**
+ * Adds an additional source to a map 
+ */
 class VTSource extends HTMLElement {
 
+    /** The map object from the VTMap parent */
     map
+    /** The name of the new source */
     sourceName
-    type
 
+    /** All available source types */
     static types = ["vector", "geojson", "raster"]
 
+    /** All available attributes */
     static get observedAttributes() {
         return [
             "type",
@@ -267,21 +358,24 @@ class VTSource extends HTMLElement {
         ]
     }
 
+    /**
+     * Adds the source to the map after element is attached to the DOM
+     */
     connectedCallback() {
         this.map = this.parentElement.map
         const src = this.getAttribute("src")
-        this.type = this.getAttribute("type")
-        if (!this.map || !VTSource.types.includes(this.type) || !src) return
+        const type = this.getAttribute("type")
+        if (!this.map || !VTSource.types.includes(type) || !src) return
         this.sourceName = "source" + performance.now()
         this.layers = []
         let source = {}
-        switch (this.type) {
+        switch (type) {
             case "vector":
             case "raster":
-                source = { "type": this.type, "tiles": [src] }
+                source = { "type": type, "tiles": [src] }
                 break
             case "geojson":
-                source = { "type": this.type, "data": src }
+                source = { "type": type, "data": src }
                 break
         }
         this.map.once("style.load", () => {
@@ -289,6 +383,9 @@ class VTSource extends HTMLElement {
         })
     }
 
+    /**
+     * Removes the source and the associated layers if element is removed from the DOM
+     */
     disconnectedCallback() {
         let layers = this.getElementsByTagName("vt-layer")
         for (let i = 0; i < layers.length; i++) {
@@ -298,14 +395,22 @@ class VTSource extends HTMLElement {
     }
 }
 
+/**
+ * Defines what and how a layer is displayed for a source
+ */
 class VTLayer extends HTMLElement {
 
+    /** The map object from the VTSource parent */
     map
+    /** The name of the source from the VTSource parent */
     sourceName
+    /** The layer object */
     layer
 
+    /** All available layer types */
     static types = ["line", "fill", "circle", "raster"]
 
+    /** All available attributes */
     static get observedAttributes() {
         return [
             "id",
@@ -320,23 +425,35 @@ class VTLayer extends HTMLElement {
         ]
     }
 
+    /**
+     * Adds the layer to the map after element is attached to the DOM
+     */
     connectedCallback() {
         this.map = this.parentElement.map
         this.sourceName = this.parentElement.sourceName
         this.addLayer(true)
     }
 
+    /**
+     * Removes the layer if element is removed from the DOM
+     */
     disconnectedCallback() {
         this.map && this.map.getLayer(this.layer.id) && this.map.removeLayer(this.layer.id)
     }
 
+    /**
+     * Updates the attributes of the layer if attribute is changed
+     * @param {string} attrName Name of the attribute 
+     * @param {string} oldVal Old value of the attribute
+     * @param {string} newVal New value of the attribute
+     */
     attributeChangedCallback(attrName, oldVal, newVal) {
         if (!this.map || !this.layer) return
         switch (attrName) {
             case "id":
             case "background":
             case "type":
-                let original = this.map.getLayer(this.layer.id)
+                const original = this.map.getLayer(this.layer.id)
                 this.map.removeLayer(original.id)
                 this.addLayer(false)
                 break
@@ -359,6 +476,10 @@ class VTLayer extends HTMLElement {
         }
     }
 
+    /**
+     * Helper method to add layer with attributes
+     * @param {boolean} initial Indicates if the layer is added for the first time
+     */
     addLayer(initial) {
         const id = this.getAttribute("id")
         const type = this.getAttribute("type")
@@ -410,22 +531,18 @@ class VTLayer extends HTMLElement {
         if (parseInt(maxzoom)) {
             layer["maxzoom"] = parseInt(maxzoom)
         }
-        if (initial) {
-            this.map.once("style.load", () => {
-                if(background === "true") {
-                    this.map.addLayer(layer, this.map.getStyle().layers[0].id)
-                } else{
-                    this.map.addLayer(layer)
-                }
-                this.layer = this.map.getLayer(layer.id)
-            })
-        } else {
-            if(background === "true") {
+        const add = () => {
+            if (background === "true") {
                 this.map.addLayer(layer, this.map.getStyle().layers[0].id)
             } else {
                 this.map.addLayer(layer)
             }
             this.layer = this.map.getLayer(layer.id)
+        }
+        if (initial) {
+            this.map.once("style.load", () => { add() })
+        } else {
+            add()
         }
 
     }

@@ -1,22 +1,22 @@
 {
   "name": "vt-microfrontend",
-  "version": "0.0.6",
+  "version": "1.0.0",
   "description": "An interactive vector tiles map as webcomponent. It's based on the [vector tiles services of Basisvisualisierung](https://basisvisualisierung.niedersachsen.de) and its [stylings](https://github.com/Basisvisualisierung/vt-styles/tree/basiskarte_ni).",
   "main": "index.js",
   "scripts": {
-    "build": "mkdir -p ./dist && browserify -g browserify-css app.js > ./dist/vt-microfrontend.js && uglifyjs --compress --mangle -- ./dist/vt-microfrontend.js > ./dist/vt-microfrontend.min.js && printf '%s\n%s\n' \"/*\nVersion $npm_package_version\nvt-microfrontend is licensed under the European Union Public License (EUPL). Full text of license: https://github.com/Basisvisualisierung/vt-microfrontend/blob/main/LICENSE.txt\nvt-microfrontend uses MapLibre GL JS. MapLibre GL JS is licensed under the 3-Clause BSD License. Full text of license: https://github.com/maplibre/maplibre-gl-js/blob/v1.15.2/LICENSE.txt\n*/\" \"$(cat ./dist/vt-microfrontend.min.js)\" > ./dist/vt-microfrontend.min.js",
+    "build": "mkdir -p ./dist && browserify -g browserify-css app.js > ./dist/vt-microfrontend.js && uglifyjs --compress --mangle -- ./dist/vt-microfrontend.js > ./dist/vt-microfrontend.min.js && printf '%s\n%s\n' \"/*\nVersion $npm_package_version\nvt-microfrontend is licensed under the European Union Public License (EUPL). Full text of license: https://github.com/Basisvisualisierung/bavi-frontend/blob/main/LICENSE.txt\nvt-microfrontend uses MapLibre GL JS. MapLibre GL JS is licensed under the 3-Clause BSD License. Full text of license: https://github.com/maplibre/maplibre-gl-js/blob/v1.15.2/LICENSE.txt\n*/\" \"$(cat ./dist/vt-microfrontend.min.js)\" > ./dist/vt-microfrontend.min.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Basisvisualisierung/vt-microfrontend.git"
+    "url": "git+https://github.com/Basisvisualisierung/bavi-frontend.git"
   },
   "author": "Basisvisualisierung",
   "license": "EUPL",
   "bugs": {
-    "url": "https://github.com/Basisvisualisierung/vt-microfrontend/issues"
+    "url": "https://github.com/Basisvisualisierung/bavi-frontend/issues"
   },
-  "homepage": "https://github.com/Basisvisualisierung/vt-microfrontend#readme",
+  "homepage": "https://github.com/Basisvisualisierung/bavi-frontend#readme",
   "dependencies": {
     "maplibre-gl": "^1.15.2"
   },
