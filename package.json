@@ -1,6 +1,6 @@
 {
   "name": "vt-microfrontend",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An interactive vector tiles map as webcomponent. It's based on the [vector tiles services of Basisvisualisierung](https://basisvisualisierung.niedersachsen.de) and its [stylings](https://github.com/Basisvisualisierung/vt-styles/tree/basiskarte_ni).",
   "main": "index.js",
   "scripts": {
@@ -18,12 +18,12 @@
   },
   "homepage": "https://github.com/Basisvisualisierung/bavi-frontend#readme",
   "dependencies": {
-    "maplibre-gl": "^1.15.2"
+    "maplibre-gl": "^2.4.0"
   },
   "devDependencies": {
     "browserify": "^17.0.0",
     "browserify-css": "^0.15.0",
-    "uglify-js": "^3.14.4"
+    "uglify-js": "^3.17.4"
   },
   "browserify-css": {
     "minify": true,

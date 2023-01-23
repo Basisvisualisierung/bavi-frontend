@@ -127,7 +127,7 @@ This will combine the code of `app.js` with all required css and javascript file
 
 Licensed under the European Union Public License (EUPL). For more information see [LICENSE.txt](LICENSE.txt)
 
-Copyright 2021 Landesamt für Geoinformation und Landesvermessung Niedersachsen
+Copyright 2021-2023 Landesamt für Geoinformation und Landesvermessung Niedersachsen
 
 ## 3rd Party Licenses
 
