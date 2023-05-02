@@ -155,6 +155,9 @@ Displays Publid Transportation Stations using the Overpass API
  */
 class VTTransport extends HTMLElement {
 
+    /** The map object from the VTMap parent */
+    map
+
     connectedCallback() {
         this.map = this.parentElement.map
         this.addIcons()
@@ -358,7 +361,7 @@ class VTTransport extends HTMLElement {
             (error, image) => {
                 if (error) throw error
 
-                map.map.addImage('tram_bus_stop', image)
+                this.map.addImage('tram_bus_stop', image)
             }
         )
     }
