@@ -67,8 +67,11 @@ class VTMap extends HTMLElement {
             container: this.container,
             center: [this.getAttribute("lon"), this.getAttribute("lat")],
             zoom: this.getAttribute("zoom"),
-            style: this.getStyle(this.getAttribute("map-style"))
+            style: this.getStyle(this.getAttribute("map-style")),
+            attributionControl: false
         })
+        this.attribution = new maplibregl.AttributionControl({})
+        this.map.addControl(this.attribution)
 
         // Set part attribute to enable css styling from the host
         this.map.getCanvas().setAttribute("part", "mapcanvas")
@@ -163,6 +166,20 @@ class VTTransport extends HTMLElement {
         this.addIcons()
         this.getStations()
         // this.addStations()
+        this.attribution = this.parentElement.attribution
+        // this.map.removeControl(new maplibregl.AttributionControl())
+
+        // add custom attribution to satisfy OSM licence
+        this.map.removeControl(this.attribution)
+        this.customAttribution = new maplibregl.AttributionControl({
+            customAttribution: '<a href="https://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap contributors</a>'
+        })
+        this.map.addControl(this.customAttribution);
+    }
+
+    disconnectedCallback() {
+        this.map.removeControl(this.customAttribution)
+        this.map.addControl(this.attribution)
     }
 
     getStations() {
