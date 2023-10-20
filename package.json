@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/Basisvisualisierung/bavi-frontend#readme",
   "dependencies": {
-    "maplibre-gl": "^2.4.0"
+    "maplibre-gl": "^3.0.0"
   },
   "devDependencies": {
     "browserify": "^17.0.0",
