@@ -28,6 +28,6 @@ jobs:
           curl https://dl.minio.io/client/mc/release/linux-amd64/mc --output ./mc
           chmod u+x ./mc
       - name: Setup alias
-        run: ./mc alias set upload https://s3.eu-de.cloud-object-storage.appdomain.cloud ${{ secrets.IBM_COS_ACCESS_KEY }} ${{ secrets.IBM_COS_SECRET_KEY }}
+        run: ./mc alias set upload https://s3.eu-de.cloud-object-storage.appdomain.cloud ${{ secrets.IBM_COS_DEV_ACCESS_KEY }} ${{ secrets.IBM_COS_DEV_SECRET_KEY }}
       - name: Upload file
         run: ./mc cp ./dist/vt-microfrontend.min.js upload${{ secrets.IBM_COS_PATH_DEV }}
