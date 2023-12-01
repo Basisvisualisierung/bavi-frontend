@@ -21,9 +21,9 @@
     "maplibre-gl": "^3.0.0"
   },
   "devDependencies": {
-    "browserify": "^17.0.0",
-    "browserify-css": "^0.15.0",
-    "uglify-js": "^3.17.4"
+    "browserify": "17.0.0",
+    "browserify-css": "0.15.0",
+    "uglify-js": "3.17.4"
   },
   "browserify-css": {
     "minify": true,
