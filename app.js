@@ -67,8 +67,11 @@ class VTMap extends HTMLElement {
             container: this.container,
             center: [this.getAttribute("lon"), this.getAttribute("lat")],
             zoom: this.getAttribute("zoom"),
-            style: this.getStyle(this.getAttribute("map-style"))
+            style: this.getStyle(this.getAttribute("map-style")),
+            attributionControl: false
         })
+        this.attribution = new maplibregl.AttributionControl({})
+        this.map.addControl(this.attribution)
 
         // Set part attribute to enable css styling from the host
         this.map.getCanvas().setAttribute("part", "mapcanvas")
@@ -143,12 +146,244 @@ class VTMap extends HTMLElement {
      * @param {MapMouseEvent} event Maplibre click event 
      */
     evalClick(event) {
-        (this.mapClickFunction in window) && eval(this.mapClickFunction)({
+        (this.mapClickFunction in window) && eval(this.mapClickFunction)({ // nosemgrep: javascript.browser.security.eval-detected.eval-detected
             lon: event.lngLat.lng,
             lat: event.lngLat.lat
         }, this.map.queryRenderedFeatures(event.point))
     }
 }
+
+/* 
+Displays Publid Transportation Stations using the Overpass API
+ */
+class VTTransport extends HTMLElement {
+
+    /** The map object from the VTMap parent */
+    map
+
+    connectedCallback() {
+        this.map = this.parentElement.map
+        this.addIcons()
+        this.getStations()
+        // this.addStations()
+        this.attribution = this.parentElement.attribution
+        // this.map.removeControl(new maplibregl.AttributionControl())
+
+        // add custom attribution to satisfy OSM licence
+        this.map.removeControl(this.attribution)
+        this.customAttribution = new maplibregl.AttributionControl({
+            customAttribution: '<a href="https://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap contributors</a>'
+        })
+        this.map.addControl(this.customAttribution);
+    }
+
+    disconnectedCallback() {
+        this.map.removeControl(this.customAttribution)
+        this.map.addControl(this.attribution)
+    }
+
+    getStations() {
+        const bounds = this.map.getBounds()
+        const bbox = `${bounds._sw.lat},${bounds._sw.lng},${bounds._ne.lat},${bounds._ne.lng}`
+        const queryString = `[out:json];node["public_transport"](${bbox});convert item ::=::,::geom=geom(),_osm_type=type();out geom;`
+
+        fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(queryString)}`)
+            .then(response => response.json())
+            .then(data => {
+                // aggregate data for stations with the same name
+                const aggregateData = data.elements.reduce((agg, feat) => {
+
+                    // TODO: maybe add 'network' as identifier (e. g., 'network' === 'Großraum-Verkehr Hannover')
+                    const oldFeat = agg.find(obj => obj['name'] === feat.tags.name)
+
+                    let updatedFeatues = []
+
+                    if (oldFeat) {
+                        oldFeat.lon.push(feat.geometry.coordinates[0])
+                        oldFeat.lat.push(feat.geometry.coordinates[1])
+                        oldFeat.bus = feat.tags.highway === 'bus_stop' ? true : oldFeat.bus
+                        oldFeat.tram = feat.tags.railway === 'tram_stop' ? true : oldFeat.tram
+
+                        updatedFeatues = [...agg]
+                    } else {
+                        updatedFeatues = agg.concat({
+                            name: feat.tags.name,
+                            lon: [feat.geometry.coordinates[0]],
+                            lat: [feat.geometry.coordinates[1]],
+                            bus: feat.tags.highway === 'bus_stop' ? true : false,
+                            tram: feat.tags.railway === 'tram_stop' ? true : false
+                        })
+                    }
+
+                    return updatedFeatues
+                }, [])
+
+                // calculate common coordinate as arithmetic mean
+                const mergedData = aggregateData.map(feat => {
+                    const lon = feat.lon.reduce((sum, cur) => sum + cur, 0) / feat.lon.length
+                    const lat = feat.lat.reduce((sum, cur) => sum + cur, 0) / feat.lat.length
+
+                    return {
+                        type: 'Feature',
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [lon, lat]
+                        },
+                        properties: {
+                            name: feat.name,
+                            bus: feat.bus,
+                            tram: feat.tram
+                        }
+                    }
+                })
+
+                // convert data to proper geoJSON
+                const geoJSONData = {
+                    type: 'FeatureCollection',
+                    features: mergedData
+                }
+
+                // Add source to map
+                this.map.addSource('public-transport', {
+                    type: 'geojson',
+                    data: geoJSONData
+                })
+            })
+            .then(() => {
+                // Add the public transport data to the map as a new source
+                this.addStations()
+            })
+    }
+
+    addStations() {
+
+        // TODO: Choose which stations to load (bus and/or tram)
+        
+        // Tram station icon and name
+        this.map.addLayer({
+            id: 'public-transport-tram',
+            type: 'symbol',
+            source: 'public-transport',
+            filter: [
+                'all',
+                ['==', 'tram', true],
+                ['==', 'bus', false]
+            ],
+            minzoom: 16,
+            layout: {
+                'text-size': 14,
+                'text-letter-spacing': 0.05,
+                'text-field': '{name}',
+                'text-font': ['Liberation Sans Regular'],
+                'text-variable-anchor': ['bottom', 'top'],
+                'text-justify': 'auto',
+                'text-allow-overlap': true,
+                'text-radial-offset': 1.5,
+                'icon-image': 'tram_stop',
+                'icon-allow-overlap': true,
+            },
+            paint: {
+                'text-color': '#0e2166',
+                'text-halo-color': 'white',
+                'text-halo-width': 2,
+                'text-halo-blur': 0
+            }
+        })
+
+        // Bus station icon and name
+        this.map.addLayer({
+            id: 'public-transport-bus',
+            type: 'symbol',
+            source: 'public-transport',
+            filter: [
+                'all',
+                ['==', 'tram', false],
+                ['==', 'bus', true]
+            ],
+            minzoom: 16,
+            layout: {
+                'text-size': 14,
+                'text-letter-spacing': 0.05,
+                'text-field': '{name}',
+                'text-font': ['Liberation Sans Regular'],
+                'text-variable-anchor': ['bottom', 'top'],
+                'text-justify': 'auto',
+                'text-allow-overlap': true,
+                'text-radial-offset': 1.5,
+                'icon-image': 'bus_stop',
+                'icon-allow-overlap': true,
+            },
+            paint: {
+                'text-color': '#0e2166',
+                'text-halo-color': 'white',
+                'text-halo-width': 2,
+                'text-halo-blur': 0
+            }
+        })
+
+        // Combined tram and bus station icon and name
+        this.map.addLayer({
+            id: 'public-transport-tram-bus',
+            type: 'symbol',
+            source: 'public-transport',
+            filter: [
+                'all',
+                ['==', 'tram', true],
+                ['==', 'bus', true]
+            ],
+            minzoom: 16,
+            layout: {
+                'text-size': 14,
+                'text-letter-spacing': 0.05,
+                'text-field': '{name}',
+                'text-font': ['Liberation Sans Regular'],
+                'text-variable-anchor': ['bottom', 'top'],
+                'text-justify': 'auto',
+                'text-allow-overlap': true,
+                'text-radial-offset': 1.5,
+                'icon-image': 'tram_bus_stop',
+                'icon-allow-overlap': true,
+            },
+            paint: {
+                'text-color': '#0e2166',
+                'text-halo-color': 'white',
+                'text-halo-width': 2,
+                'text-halo-blur': 0
+            }
+        })
+    }
+
+    addIcons() {
+        // Load images
+        this.map.loadImage(
+            'https://dev.basisvisualisierung.niedersachsen.de/services/icons/tram.png',
+            (error, image) => {
+                if (error) throw error
+
+                this.map.addImage('tram_stop', image)
+            }
+        )
+
+        this.map.loadImage(
+            'https://dev.basisvisualisierung.niedersachsen.de/services/icons/bus.png',
+            (error, image) => {
+                if (error) throw error
+
+                this.map.addImage('bus_stop', image)
+            }
+        )
+
+        this.map.loadImage(
+            'https://dev.basisvisualisierung.niedersachsen.de/services/icons/tram_bus.png',
+            (error, image) => {
+                if (error) throw error
+
+                this.map.addImage('tram_bus_stop', image)
+            }
+        )
+    }
+}
+
 
 /**
  * Displays a marker element on a map
@@ -549,6 +784,7 @@ class VTLayer extends HTMLElement {
 }
 
 window.customElements.define("vt-map", VTMap)
+window.customElements.define("vt-transport", VTTransport)
 window.customElements.define("vt-marker", VTMarker)
 window.customElements.define("vt-popup", VTPopup)
 window.customElements.define("vt-control", VTControl)
