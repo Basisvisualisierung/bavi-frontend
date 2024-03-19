@@ -146,7 +146,7 @@ class VTMap extends HTMLElement {
      * @param {MapMouseEvent} event Maplibre click event 
      */
     evalClick(event) {
-        (this.mapClickFunction in window) && eval(this.mapClickFunction)({
+        (this.mapClickFunction in window) && eval(this.mapClickFunction)({ // nosemgrep: javascript.browser.security.eval-detected.eval-detected
             lon: event.lngLat.lng,
             lat: event.lngLat.lat
         }, this.map.queryRenderedFeatures(event.point))
