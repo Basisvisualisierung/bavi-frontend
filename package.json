@@ -23,7 +23,7 @@
   "devDependencies": {
     "browserify": "17.0.0",
     "browserify-css": "0.15.0",
-    "uglify-js": "3.19.2"
+    "uglify-js": "3.19.3"
   },
   "browserify-css": {
     "minify": true,
