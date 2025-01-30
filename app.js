@@ -258,7 +258,7 @@ class VTTransport extends HTMLElement {
     addStations() {
 
         // TODO: Choose which stations to load (bus and/or tram)
-        
+
         // Tram station icon and name
         this.map.addLayer({
             id: 'public-transport-tram',
@@ -355,30 +355,28 @@ class VTTransport extends HTMLElement {
 
     addIcons() {
         // Load images
-        this.map.loadImage(
-            'https://dev.basisvisualisierung.niedersachsen.de/services/icons/tram.png',
-            (error, image) => {
-                if (error) throw error
-
-                this.map.addImage('tram_stop', image)
+        this.map.loadImage('https://dev.basisvisualisierung.niedersachsen.de/services/icons/tram.png')
+            .then(image => {
+                this.map.addImage('tram_stop', image.data);
+            })
+            .catch(error => {
+                throw error;
             }
         )
-
-        this.map.loadImage(
-            'https://dev.basisvisualisierung.niedersachsen.de/services/icons/bus.png',
-            (error, image) => {
-                if (error) throw error
-
-                this.map.addImage('bus_stop', image)
+        this.map.loadImage('https://dev.basisvisualisierung.niedersachsen.de/services/icons/bus.png')
+            .then(image => {
+                this.map.addImage('bus_stop', image.data);
+            })
+            .catch(error => {
+                throw error;
             }
         )
-
-        this.map.loadImage(
-            'https://dev.basisvisualisierung.niedersachsen.de/services/icons/tram_bus.png',
-            (error, image) => {
-                if (error) throw error
-
-                this.map.addImage('tram_bus_stop', image)
+        this.map.loadImage('https://dev.basisvisualisierung.niedersachsen.de/services/icons/tram_bus.png')
+            .then(image => {
+                this.map.addImage('tram_bus_stop', image.data);
+            })
+            .catch(error => {
+                throw error;
             }
         )
     }
